@@ -60,15 +60,11 @@ class pakeNewMidgardMvcAppTask
         if (!file_exists($dir.'/application.yml'))
             throw new pakeException('"'.$dir.'" does not look like MidgardMVC application. (can not find application.yml file)');
 
-        $dbfile = $dir.'/midgard2.db';
+        $ini = parse_ini_file($dir.'/midgard2.conf', true);
 
-        if (file_exists($dbfile)) {
-            if (file_exists($dbfile.'.bak')) {
-                pake_remove($dbfile.'.bak', '/');
-            }
-            pake_rename($dbfile, $dbfile.'.bak');
-        } else {
-            pake_echo_error('Can not find old database file. Got nothing to backup');
+        if ($ini['MidgardDatabase']['Type'] == 'SQLite') {
+            $_db_path = $ini['MidgardDatabase']['DatabaseDir'].'/'.$ini['MidgardDatabase']['Name'].'.db';
+            self::clean_sqlite_db($_db_path);
         }
 
         self::init_mvc_stage2($dir);
@@ -238,5 +234,18 @@ class pakeNewMidgardMvcAppTask
 
         pake_write_file($prefix.'/run', $contents);
         pake_chmod('run', $prefix, 0755);
+    }
+
+
+    private static function clean_sqlite_db($dbfile)
+    {
+        if (file_exists($dbfile)) {
+            if (file_exists($dbfile.'.bak')) {
+                pake_remove($dbfile.'.bak', '/');
+            }
+            pake_rename($dbfile, $dbfile.'.bak');
+        } else {
+            pake_echo_error('Can not find old database file. Got nothing to backup');
+        }
     }
 }
