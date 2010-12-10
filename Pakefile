@@ -1,0 +1,98 @@
+<?php
+
+/* registration */
+pake_import('pear');
+
+pake_desc('release a new mvc_installer version');
+pake_task('release');
+
+pake_task('create_package_xml');
+
+/* tasks */
+/**
+ * To be able to include a plugin in pake_runtime.php, you have to use include_once for external dependencies
+ * and require_once for internal dependencies (for other included PI or pake classes) because we strip 
+ * all require_once statements
+ */
+
+function run_create_pear_package()
+{
+    run_create_package_xml();
+
+    $_root = dirname(__FILE__);
+    $options = pakeYaml::loadFile($_root.'/options.yaml');
+    $version = $options['version'];
+
+    $app_file = 'lib/midgardmvc_installer/midgardMvcInstallerApp.class.php';
+
+    pake_replace_tokens(
+        $app_file, $_root,
+        'const VERSION = \'', '\';',
+        array(
+            '1.1.DEV' => "const VERSION = '$version';"
+        )
+    );
+
+    // run packager
+    try {
+        pakePearTask::package_pear_package($_root.'/package.xml', $_root.'/target');
+    } catch (pakeException $e) {
+    }
+
+    // cleanup
+    pake_remove('package.xml', $_root);
+    pake_replace_tokens(
+        $app_file, $_root,        // file
+        "const VERSION = '", "';",                   // dividers
+        array(                                       // tokens
+            $version => "const VERSION = '1.1.DEV';"
+        )
+    );
+
+    if (isset($e))
+        throw $e;
+}
+
+function run_create_package_xml()
+{
+    $_root = dirname(__FILE__);
+    $options = pakeYaml::loadFile($_root.'/options.yaml');
+    $version = $options['version'];
+
+    // create a pear package
+    pake_echo_comment('creating PEAR package.xml for version "'.$version.'"');
+    pake_copy($_root.'/package.xml.tmpl', $_root.'/package.xml', array('override' => true));
+
+    // add class files
+    $class_files = pakeFinder::type('file')
+                    ->ignore_version_control()
+                    ->not_name('/^midgardMvcInstallerApp.class.php$/')
+                    ->name('*.php')
+                    ->relative()
+                    ->in($_root.'/lib');
+    $xml_classes = '';
+    foreach ($class_files as $file) {
+        $dir_name  = dirname($file);
+        $file_name = basename($file);
+        $xml_classes .= '<file role="php" baseinstalldir="'.$dir_name.'" install-as="'.$file_name.'" name="lib/'.$file.'"/>'."\n";
+    }
+
+    // replace tokens
+    pake_replace_tokens('package.xml', $_root, '##', '##', array(
+        'INSTALLER_VERSION' => $version,
+        'CURRENT_DATE' => date('Y-m-d'),
+        'CLASS_FILES'  => $xml_classes,
+    ));
+}
+
+function run_release($task)
+{
+    $_root = dirname(__FILE__);
+    $options = pakeYaml::loadFile($_root.'/options.yaml');
+    $version = $options['version'];
+
+    if ($task->is_verbose())
+        pake_echo_comment('releasing mvc_installer version "'.$version.'"');
+
+    run_create_pear_package();
+}

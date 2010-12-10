@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package packagerversion="1.4.1" version="2.0" xmlns="http://pear.php.net/dtd/package-2.0" xmlns:tasks="http://pear.php.net/dtd/tasks-1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd">
+  <name>midgardmvc_installer</name>
+  <channel>pear.indeyets.pp.ru</channel>
+  <summary>Midgard MVC Installer</summary>
+  <description>
+    Tool for extremely easy installation of Midgard MVC Applications
+  </description>
+  <lead>
+    <name>Alexey Zakhlestin</name>
+    <user>indeyets</user>
+    <email>indeyets@php.net</email>
+    <active>yes</active>
+  </lead>
+  <lead>
+    <name>Henri Bergius</name>
+    <user>bergie</user>
+    <email>henri.bergius@gmail.com</email>
+    <active>yes</active>
+  </lead>
+
+  <date>##CURRENT_DATE##</date>
+  <version>
+    <release>##INSTALLER_VERSION##</release>
+    <api>1.0.0</api>
+  </version>
+  <stability>
+    <release>beta</release>
+    <api>stable</api>
+  </stability>
+  <license uri="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser General Public License, version 2.1</license>
+  <notes>
+    -
+  </notes>
+
+  <contents>
+    <dir name="/">
+      <file role="script" baseinstalldir="/" name="bin/mvc_install.sh">
+        <tasks:replace type="pear-config" from="@PHP-BIN@" to="php_bin"/>
+        <tasks:replace type="pear-config" from="@BIN-DIR@" to="bin_dir"/>
+        <tasks:replace type="pear-config" from="@PEAR-DIR@" to="php_dir"/>
+      </file>
+
+      <file role="php" baseinstalldir="/" install-as="mvc_install.php" name="bin/mvc_install.php" />
+      <file role="php" baseinstalldir="midgardmvc_installer" install-as="midgardMvcInstallerApp.class.php" name="lib/midgardmvc_installer/midgardMvcInstallerApp.class.php">
+        <tasks:replace type="package-info" from="1.0.DEV" to="version" />
+      </file>
+
+      ##CLASS_FILES##
+
+      <file role="doc" baseinstalldir="midgardmvc_installer" name="LICENSE" />
+    </dir>
+  </contents>
+
+  <dependencies>
+    <required>
+      <php>
+        <min>5.2.1</min>
+      </php>
+      <pearinstaller>
+        <min>1.4.1</min>
+      </pearinstaller>
+      <package>
+        <name>pake</name>
+        <channel>pear.indeyets.pp.ru</channel>
+      </package>
+    </required>
+
+    <optional>
+      <extension>
+        <name>midgard2</name>
+      </extension>
+    </optional>
+  </dependencies>
+
+  <phprelease>
+    <filelist>
+      <install as="mvc_install" name="bin/mvc_install.sh" />
+    </filelist>
+  </phprelease>
+
+  <changelog>
+  </changelog>
+</package>
