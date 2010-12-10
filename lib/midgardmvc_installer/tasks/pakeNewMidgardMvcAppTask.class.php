@@ -154,7 +154,7 @@ class pakeNewMidgardMvcAppTask
 
         $php_config .= "midgard.engine = On\n";
         $php_config .= "midgard.http = On\n";
-        $php_config .= "midgard.memory_debug = Off\n"
+        $php_config .= "midgard.memory_debug = Off\n";
         $php_config .= "midgard.configuration_file = {$dir}/midgard2.conf\n";
         $php_config .= "midgardmvc.application_config = {$dir}/application.yml\n";
 
@@ -210,9 +210,22 @@ class pakeNewMidgardMvcAppTask
 
     private static function create_runner_script($prefix)
     {
-        $contents =  '#!/bin/sh'."\n\n";
-        $contents .= escapeshellarg(pake_which('php')).' -c '.escapeshellarg($prefix.'/php.ini').' '
-                    .escapeshellarg(pake_which('aip')).' app '.escapeshellarg($prefix.'/midgardmvc_core/httpd');
+        $php = escapeshellarg(pake_which('php'));
+        $php_ini = escapeshellarg($prefix.'/php.ini');
+        $aip = escapeshellarg(pake_which('aip'));
+        $app_path = escapeshellarg($prefix.'/midgardmvc_core/httpd');
+        $debug_runner = escapeshellarg($prefix.'/midgardmvc_core/httpd/midgardmvc-root-appserv.php');
+
+        $contents  = '#!/bin/sh'."\n\n";
+        $contents .= 'if [ $# -eq 0 ] ; then'."\n";
+        $contents .= '    '.$php.' -c '.$php_ini.' '.$aip.' app '.$app_path."\n";
+        $contents .= 'else'."\n";
+        $contents .= '    if [ $1 = "debug" ] ; then'."\n";
+        $contents .= '        '.$php.' -c '.$php_ini.' '.$debug_runner."\n";
+        $contents .= '    else'."\n";
+        $contents .= '        echo "Unknown mode requested"'."\n";
+        $contents .= '    fi'."\n";
+        $contents .= 'fi'."\n";
 
         pake_write_file($prefix.'/run', $contents);
         pake_chmod('run', $prefix, 0755);
