@@ -71,12 +71,15 @@ class pakeNewMidgardMvcAppTask
         $dbfile = $dir.'/midgard2.db';
 
         if (file_exists($dbfile)) {
+            if (file_exists($dbfile.'.bak')) {
+                pake_remove($dbfile.'.bak', '/');
+            }
             pake_rename($dbfile, $dbfile.'.bak');
         } else {
             pake_echo_error('Can not find old database file. Got nothing to backup');
         }
 
-        init_mvc_stage2($dir);
+        self::init_mvc_stage2($dir);
     }
 
 
