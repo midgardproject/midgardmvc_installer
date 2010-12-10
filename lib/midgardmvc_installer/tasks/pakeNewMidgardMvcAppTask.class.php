@@ -214,14 +214,23 @@ class pakeNewMidgardMvcAppTask
         $php_ini = escapeshellarg($prefix.'/php.ini');
         $aip = escapeshellarg(pake_which('aip'));
         $app_path = escapeshellarg($prefix.'/midgardmvc_core/httpd');
+
+        $gdb = escapeshellarg(pake_which('gdb'));
         $debug_runner = escapeshellarg($prefix.'/midgardmvc_core/httpd/midgardmvc-root-appserv.php');
+
+        $production = $php.' -c '.$php_ini.' '.$aip.' app '.$app_path;
+        $debug =      $php.' -c '.$php_ini.' '.$debug_runner;
+
+        if ($gdb) {
+            $debug = $gdb.' --args '.$debug;
+        }
 
         $contents  = '#!/bin/sh'."\n\n";
         $contents .= 'if [ $# -eq 0 ] ; then'."\n";
-        $contents .= '    '.$php.' -c '.$php_ini.' '.$aip.' app '.$app_path."\n";
+        $contents .= '    '.$production."\n";
         $contents .= 'else'."\n";
         $contents .= '    if [ $1 = "debug" ] ; then'."\n";
-        $contents .= '        '.$php.' -c '.$php_ini.' '.$debug_runner."\n";
+        $contents .= '        '.$debug."\n";
         $contents .= '    else'."\n";
         $contents .= '        echo "Unknown mode requested"'."\n";
         $contents .= '    fi'."\n";
