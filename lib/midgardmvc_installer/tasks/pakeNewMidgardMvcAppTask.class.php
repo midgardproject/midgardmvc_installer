@@ -24,8 +24,7 @@ class pakeNewMidgardMvcAppTask
         }
 
         pake_echo_comment('reading application definition');
-        $application_yml = $args[0];
-        $application = self::read_remote_yaml($application_yml);
+        $application = pakeYaml::loadFile($args[0]);
 
         self::create_env_fs($args[1]);
         $dir = realpath($args[1]);
@@ -84,23 +83,6 @@ class pakeNewMidgardMvcAppTask
 
 
     // HELPERS
-    private static function read_remote_yaml($url)
-    {
-        $application = @file_get_contents($url);
-        if (empty($application))
-        {
-            throw new pakeException("Failed to read application definition from {$url}");
-        }
-
-        $application = pakeYaml::loadString($application);
-        if (!is_array($application))
-        {
-            throw new pakeException("Failed to parse application definition from {$url}");
-        }
-
-        return $application;
-    }
-
     private static function get_mvc_components(array $components, $target_dir)
     {
         foreach ($components as $component => $sources) {
