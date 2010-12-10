@@ -11,6 +11,7 @@ function mvc_installer_autoloader($classname)
         $classes = array(
             'midgardMvcInstallerApp'    => MVC_INSTALLER_DIR.'/midgardMvcInstallerApp.class.php',
             'pakeMidgard'               => MVC_INSTALLER_DIR.'/pakeMidgard.class.php',
+            'pakeMidgardMvcComponent'   => MVC_INSTALLER_DIR.'/pakeMidgardMvcComponent.class.php',
         );
     }
 
