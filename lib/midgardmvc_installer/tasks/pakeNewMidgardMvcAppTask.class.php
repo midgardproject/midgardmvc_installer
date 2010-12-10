@@ -51,7 +51,9 @@ class pakeNewMidgardMvcAppTask
 
     public static function run__init_database($task, $args)
     {
-        self::init_database($args[0], 'midgard2');
+        pakeMidgard::connect($args[0].'/midgard2.conf');
+        pakeMidgard::create_blobdir();
+        pakeMidgard::init_database();
     }
 
     public static function run_reinit_db($task, $args)
@@ -241,33 +243,6 @@ class pakeNewMidgardMvcAppTask
         );
     }
 
-    private static function init_database($dir)
-    {
-        self::_connect($dir, 'midgard2');
-
-        midgard_storage::create_base_storage();
-        pake_echo_action('midgard', 'Created base storage');
-
-        $re = new ReflectionExtension('midgard2');
-        $classes = $re->getClasses();
-        foreach ($classes as $refclass) {
-            $parent_class = $refclass->getParentClass();
-
-            if (!$parent_class) {
-                continue;
-            }
-
-            if ($parent_class->getName() != 'midgard_object') {
-                continue;
-            }
-
-            $type = $refclass->getName();
-
-            midgard_storage::create_class_storage($type);
-            pake_echo_action('midgard', 'Created storage for '.$type.' class');
-        }
-    }
-
 
     private static function create_ini_file($dir)
     {
@@ -353,27 +328,6 @@ class pakeNewMidgardMvcAppTask
             throw new pakeException('Wrong path: "'.$path.'"');
 
         return $path;
-    }
-
-    private static function _connect($dir)
-    {
-        $config = new midgard_config();
-        $res = $config->read_file_at_path($dir.'/midgard2.conf');
-
-        if (false === $res) {
-            throw new pakeException('Failed to read config');
-        }
-
-        $config->create_blobdir();
-
-        $midgard = midgard_connection::get_instance();
-        $res = $midgard->open_config($config);
-
-        if (false === $res) {
-            throw new pakeException('Failed to init connection from config "midgard2"');
-        }
-
-        pake_echo_comment('Connected to database');
     }
 
     private static function create_config($prefix)
