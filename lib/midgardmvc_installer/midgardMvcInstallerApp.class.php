@@ -56,7 +56,7 @@ class midgardMvcInstallerApp extends pakeApp
     public function showVersion()
     {
         echo sprintf(
-            self::$EXEC_NAME.' version %s\n',
+            self::$EXEC_NAME.' version %s'."\n",
             pakeColor::colorize(self::INSTALLER_VERSION, 'INFO')
         );
         parent::showVersion();
