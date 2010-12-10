@@ -19,7 +19,7 @@ class pakeMidgard
         $res = $midgard->open_config($config);
 
         if (false === $res) {
-            throw new pakeException('Failed to init connection from config "midgard2"');
+            throw new pakeException('Failed to init connection from config "'.$config_file.'"');
         }
 
         pake_echo_action('midgard', 'connected to database');

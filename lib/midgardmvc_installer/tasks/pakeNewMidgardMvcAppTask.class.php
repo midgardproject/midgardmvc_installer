@@ -16,10 +16,10 @@ class pakeNewMidgardMvcAppTask
     }
 
 
+    // public tasks
     public static function run_init_mvc($task, $args)
     {
-        if (count($args) != 2)
-        {
+        if (count($args) != 2) {
             throw new pakeException('usage: mvc_install '.$task->get_name().' path/to/application.yml target/dir/path');
         }
 
@@ -46,13 +46,6 @@ class pakeNewMidgardMvcAppTask
         pake_echo_comment("Midgard MVC installed. Run your application with ".
                             // "'php -c {$dir}/php.ini {$dir}/midgardmvc_core/httpd/midgardmvc-root-appserv.php' ".
                             "'{$dir}/run' and go to http://localhost:8001/");
-    }
-
-    public static function run__init_database($task, $args)
-    {
-        pakeMidgard::connect($args[0].'/midgard2.conf');
-        pakeMidgard::create_blobdir();
-        pakeMidgard::init_database();
     }
 
     public static function run_reinit_db($task, $args)
@@ -82,6 +75,15 @@ class pakeNewMidgardMvcAppTask
     }
 
 
+    // hidden tasks
+    public static function run__init_database($task, $args)
+    {
+        pakeMidgard::connect($args[0].'/midgard2.conf');
+        pakeMidgard::create_blobdir();
+        pakeMidgard::init_database();
+    }
+
+
     // HELPERS
     private static function init_mvc_stage2($dir)
     {
@@ -99,6 +101,31 @@ class pakeNewMidgardMvcAppTask
         );
     }
 
+
+    private static function create_env_fs($dir)
+    {
+        pake_echo_comment('creating directory-structure');
+
+        if (file_exists($dir)) {
+            throw new pakeException("Directory {$dir} already exists");
+        }
+
+        pake_mkdirs($dir);
+        $dir = realpath($dir);
+
+        pake_mkdirs($dir.'/share/schema');
+        pake_mkdirs($dir.'/share/views');
+        pake_mkdirs($dir.'/blobs');
+        pake_mkdirs($dir.'/var');
+        pake_mkdirs($dir.'/cache');
+
+        // looking for core xml-files
+        $xmls = pakeFinder::type('file')->name('*.xml')->maxdepth(0);
+
+        $xml_dir = self::get_midgard_core_prefix().'/share/midgard2';
+
+        pake_mirror($xmls, $xml_dir, $dir.'/share');
+    }
 
     private static function create_ini_file($dir)
     {
@@ -127,39 +154,12 @@ class pakeNewMidgardMvcAppTask
 
         $php_config .= "midgard.engine = On\n";
         $php_config .= "midgard.http = On\n";
+        $php_config .= "midgard.memory_debug = Off\n"
         $php_config .= "midgard.configuration_file = {$dir}/midgard2.conf\n";
         $php_config .= "midgardmvc.application_config = {$dir}/application.yml\n";
 
         // WRITING FILE
         pake_write_file($dir.'/php.ini', $php_config);
-    }
-
-    private static function create_env_fs($dir)
-    {
-        pake_echo_comment('creating directory-structure');
-
-        if (file_exists($dir)) {
-            throw new pakeException("Directory {$dir} already exists");
-        }
-
-        pake_mkdirs($dir);
-        $dir = realpath($dir);
-
-        pake_mkdirs($dir.'/share/schema');
-        pake_mkdirs($dir.'/share/views');
-        pake_mkdirs($dir.'/blobs');
-        pake_mkdirs($dir.'/var');
-        pake_mkdirs($dir.'/cache');
-
-        // looking for core xml-files
-        $xmls = pakeFinder::type('file')->name('*.xml')->maxdepth(0);
-
-        $xml_dir = self::get_midgard_core_prefix().'/share/midgard2';
-
-        if (!is_dir($xml_dir))
-            throw new pakeException("Can't find core xml-files directory");
-
-        pake_mirror($xmls, $xml_dir, $dir.'/share');
     }
 
     private static function get_midgard_core_prefix()
