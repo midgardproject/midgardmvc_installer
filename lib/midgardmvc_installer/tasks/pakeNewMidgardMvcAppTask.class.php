@@ -35,7 +35,7 @@ class pakeNewMidgardMvcAppTask
         $dir = realpath($args[1]);
 
         pake_echo_comment('installing configuration files');
-        self::create_config($dir);
+        self::create_config($dir, $_db_type);
         self::create_ini_file($dir);
         self::create_runner_script($dir);
         pakeYaml::emitFile($application, "{$dir}/application.yml");
@@ -183,26 +183,45 @@ class pakeNewMidgardMvcAppTask
         return $path;
     }
 
-    private static function create_config($prefix)
+    private static function create_config($prefix, $db_type)
     {
-        pake_write_file(
-            $prefix.'/midgard2.conf',
+        if ($db_type == 'sqlite') {
+            $db_config = "Type=SQLite\n".
+                         "Name=midgard2\n".
+                         "DatabaseDir={$prefix}\n";
+        } elseif ($db_type == 'mysql') {
+            $db_host     = pake_input('Hostname of MySQL server?', 'localhost');
+            $db_port     = pake_input('Port of MySQL server?', '3306');
+            $db_name     = pake_input('Name of MySQL database?', 'midgard');
+            $db_login    = pake_input('MySQL login to be used?', 'midgard');
+            $db_password = pake_input('MySQL password to be used?', 'midgard');
+
+            $db_config = "Type=MySQL\n".
+                         "Host={$db_host}\n".
+                         "Port={$db_port}\n".
+                         "Name={$db_name}\n".
+                         "Username={$db_login}\n".
+                         "Password={$db_password}\n";
+        } else {
+            throw new pakeException("This dbtype is not supported by installer: ".$dbtype);
+        }
+
+        $config_file =
             "[MidgardDatabase]\n".
-                "Type=SQLite\n".
-                "Name=midgard2\n".
-                "DatabaseDir={$prefix}\n".
+                $db_config.
                 "Logfile={$prefix}/midgard2.log\n".
                 "Loglevel=warning\n".
                 "TableCreate=true\n".
                 "TableUpdate=true\n".
                 "TestUnit=false\n".
                 "\n".
-                "[MidgardDir]\n".
+            "[MidgardDir]\n".
                 "BlobDir={$prefix}/blobs\n".
                 "ShareDir={$prefix}/share\n".
                 "VarDir={$prefix}/var\n".
-                "CacheDir={$prefix}/cache\n"
-        );
+                "CacheDir={$prefix}/cache\n";
+
+        pake_write_file($prefix.'/midgard2.conf', $config_file);
     }
 
     private static function create_runner_script($prefix)
