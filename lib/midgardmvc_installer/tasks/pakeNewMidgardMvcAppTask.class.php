@@ -17,11 +17,16 @@ class pakeNewMidgardMvcAppTask
 
 
     // public tasks
-    public static function run_init_mvc($task, $args)
+    public static function run_init_mvc($task, $args, $parameters)
     {
         if (count($args) != 2) {
             throw new pakeException('usage: mvc_install '.$task->get_name().' path/to/application.yml target/dir/path');
         }
+
+        $_db_type = isset($parameters['db']) ? $parameters['db'] : 'sqlite';
+
+        pake_echo_comment('checking, if recent AiP is installed');
+        pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
 
         pake_echo_comment('reading application definition');
         $application = pakeYaml::loadFile($args[0]);
@@ -29,22 +34,18 @@ class pakeNewMidgardMvcAppTask
         self::create_env_fs($args[1]);
         $dir = realpath($args[1]);
 
-        pake_echo_comment('fetching MidgardMVC components');
-        pakeMidgardMvcComponent::install_mvc_components($application['components'], $dir);
-
-        pake_echo_comment('checking, if recent AiP is installed');
-        pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
-
         pake_echo_comment('installing configuration files');
         self::create_config($dir);
         self::create_ini_file($dir);
         self::create_runner_script($dir);
         pakeYaml::emitFile($application, "{$dir}/application.yml");
 
+        pake_echo_comment('fetching MidgardMVC components');
+        pakeMidgardMvcComponent::install_mvc_components($application['components'], $dir);
+
         self::init_mvc_stage2($dir);
 
         pake_echo_comment("Midgard MVC installed. Run your application with ".
-                            // "'php -c {$dir}/php.ini {$dir}/midgardmvc_core/httpd/midgardmvc-root-appserv.php' ".
                             "'{$dir}/run' and go to http://localhost:8001/");
     }
 
