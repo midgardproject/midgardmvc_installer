@@ -9,9 +9,10 @@ function mvc_installer_autoloader($classname)
 
     if (null === $classes) {
         $classes = array(
-            'midgardMvcInstallerApp'    => MVC_INSTALLER_DIR.'/midgardMvcInstallerApp.class.php',
-            'pakeMidgard'               => MVC_INSTALLER_DIR.'/pakeMidgard.class.php',
-            'pakeMidgardMvcComponent'   => MVC_INSTALLER_DIR.'/pakeMidgardMvcComponent.class.php',
+            'midgardMvcInstallerApp'     => MVC_INSTALLER_DIR.'/midgardMvcInstallerApp.class.php',
+            'pakeMidgard'                => MVC_INSTALLER_DIR.'/pakeMidgard.class.php',
+            'pakeMidgardMvcComponent'    => MVC_INSTALLER_DIR.'/pakeMidgardMvcComponent.class.php',
+            'pakeMidgardMVCMysqlManager' => MVC_INSTALLER_DIR.'/pakeMidgardMVCMysqlManager.class.php',
         );
     }
 

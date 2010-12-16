@@ -66,6 +66,8 @@ class pakeNewMidgardMvcAppTask
         if ($ini['MidgardDatabase']['Type'] == 'SQLite') {
             $_db_path = $ini['MidgardDatabase']['DatabaseDir'].'/'.$ini['MidgardDatabase']['Name'].'.db';
             self::clean_sqlite_db($_db_path);
+        } elseif ($ini['MidgardDatabase']['Type'] == 'MySQL') {
+            self::clean_mysql_db($ini['MidgardDatabase']);
         }
 
         self::init_mvc_stage2($dir);
@@ -268,5 +270,12 @@ class pakeNewMidgardMvcAppTask
         } else {
             pake_echo_error('Can not find old database file. Got nothing to backup');
         }
+    }
+
+    private static function clean_mysql_db(array $config)
+    {
+        $db = new pakeMidgardMVCMysqlManager($config['Username'], $config['Password'], $config['Host'], $config['Port']);
+        $db->dropDatabase($config['Name']);
+        $db->createDatabase($config['Name']);
     }
 }
