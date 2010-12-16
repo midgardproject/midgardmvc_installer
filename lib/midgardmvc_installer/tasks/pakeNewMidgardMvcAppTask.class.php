@@ -280,7 +280,7 @@ class pakeNewMidgardMvcAppTask
 
     private static function clean_mysql_db(array $config)
     {
-        $db = new pakeMidgardMVCMysqlManager($config['Username'], $config['Password'], $config['Host'], $config['Port']);
+        $db = new pakeMySQL($config['Username'], $config['Password'], $config['Host'], $config['Port']);
         $db->dropDatabase($config['Name']);
         $db->createDatabase($config['Name']);
     }
