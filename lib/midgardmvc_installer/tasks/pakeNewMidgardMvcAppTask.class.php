@@ -231,14 +231,15 @@ class pakeNewMidgardMvcAppTask
         $aip = escapeshellarg(pake_which('aip'));
         $app_path = escapeshellarg($prefix.'/midgardmvc_core/httpd');
 
-        $gdb = escapeshellarg(pake_which('gdb'));
         $debug_runner = escapeshellarg($prefix.'/midgardmvc_core/httpd/midgardmvc-root-appserv.php');
 
         $production = $php.' -c '.$php_ini.' '.$aip.' app '.$app_path;
         $debug =      $php.' -c '.$php_ini.' '.$debug_runner;
 
-        if ($gdb) {
+        try {
+            $gdb = escapeshellarg(pake_which('gdb'));
             $debug = $gdb.' --args '.$debug;
+        } catch (pakeException $e) {
         }
 
         $contents  = '#!/bin/sh'."\n\n";
