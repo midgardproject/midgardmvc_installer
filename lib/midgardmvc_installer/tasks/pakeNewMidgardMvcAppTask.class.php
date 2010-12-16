@@ -26,7 +26,13 @@ class pakeNewMidgardMvcAppTask
         $_db_type = isset($parameters['db']) ? $parameters['db'] : 'sqlite';
 
         pake_echo_comment('checking, if recent AiP is installed');
-        pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
+        if (pakePearTask::isInstalled('AppServer', 'pear.indeyets.pp.ru')) {
+            pake_superuser_sh('pear clear-cache');
+            pake_superuser_sh('pear channel-update indeyets');
+            pake_superuser_sh('pear upgrade indeyets/AppServer');
+        } else {
+            pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
+        }
 
         pake_echo_comment('reading application definition');
         $application = pakeYaml::loadFile($args[0]);
