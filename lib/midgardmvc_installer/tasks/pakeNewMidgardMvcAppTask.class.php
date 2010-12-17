@@ -6,13 +6,15 @@ class pakeNewMidgardMvcAppTask
 {
     public static function import_default_tasks()
     {
-        pake_desc('Set up Midgard MVC with Midgard2. Usage: pake init_mvc path/to/application.yml target/dir/path');
+        $app = midgardMvcInstallerApp::$EXEC_NAME;
+
+        pake_desc('Set up Midgard MVC with Midgard2. Usage: '.$app.' init_mvc path/to/application.yml target/dir/path');
         pake_task(__CLASS__.'::init_mvc');
 
-        pake_task(__CLASS__.'::_init_database'); // helper
-
-        pake_desc('Create fresh database for existing application');
+        pake_desc('Create fresh database for existing application. Usage: '.$app.' reinit_db app/dir/path');
         pake_task(__CLASS__.'::reinit_db');
+
+        pake_task(__CLASS__.'::_init_database'); // helper
     }
 
 
