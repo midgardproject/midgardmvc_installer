@@ -25,7 +25,7 @@ class midgardMvcInstallerApp extends pakeApp
     {
         parent::__construct();
 
-        self::$EXEC_NAME = 'mvc_installer';
+        self::$EXEC_NAME = 'mvc_install';
         self::$PLUGINDIRS[] = dirname(__FILE__).'/tasks';
         self::$PAKEFILES = array();
     }

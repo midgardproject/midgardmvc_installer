@@ -6,8 +6,6 @@ class pakeNewMidgardMvcAppTask
 {
     public static function import_default_tasks()
     {
-        $app = midgardMvcInstallerApp::$EXEC_NAME;
-
         pake_desc('Set up Midgard MVC with Midgard2. Usage: mvc_install init_mvc path/to/application.yml target/dir/path');
         pake_task(__CLASS__.'::init_mvc');
 
