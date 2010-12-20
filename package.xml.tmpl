@@ -22,7 +22,7 @@
   <date>##CURRENT_DATE##</date>
   <version>
     <release>##INSTALLER_VERSION##</release>
-    <api>1.0.0</api>
+    <api>1.0.1</api>
   </version>
   <stability>
     <release>beta</release>
@@ -81,6 +81,24 @@
   </phprelease>
 
   <changelog>
+    <release>
+      <date>2010-12-20</date>
+      <version>
+        <release>1.0.1</release>
+        <api>1.0.1</api>
+      </version>
+      <stability>
+        <release>stable</release>
+        <api>stable</api>
+      </stability>
+      <license uri="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser General Public License, version 2.1</license>
+      <notes>
+        - renamed tool mvc_install -> midgardmvc (gh-6)
+        - renamed task init_mvc -> install (gh-6)
+        - added support for inserting application nodes in midgard database (gh-7)
+        - added simple YAML validation, when installing apps (gh-1)
+      </notes>
+    </release>
     <release>
       <date>2010-12-17</date>
       <version>
