@@ -6,10 +6,10 @@ class pakeNewMidgardMvcAppTask
 {
     public static function import_default_tasks()
     {
-        pake_desc('Set up Midgard MVC with Midgard2. Usage: mvc_install init_mvc path/to/application.yml target/dir/path');
+        pake_desc('Set up Midgard MVC with Midgard2. Usage: midgardmvc init_mvc path/to/application.yml target/dir/path');
         pake_task(__CLASS__.'::init_mvc');
 
-        pake_desc('Create fresh database for existing application. Usage: mvc_install reinit_db app/dir/path');
+        pake_desc('Create fresh database for existing application. Usage: midgardmvc reinit_db app/dir/path');
         pake_task(__CLASS__.'::reinit_db');
 
         pake_task(__CLASS__.'::_init_database'); // helper
@@ -20,7 +20,7 @@ class pakeNewMidgardMvcAppTask
     public static function run_init_mvc($task, $args, $parameters)
     {
         if (count($args) != 2) {
-            throw new pakeException('usage: mvc_install '.$task->get_name().' path/to/application.yml target/dir/path');
+            throw new pakeException('usage: midgardmvc '.$task->get_name().' path/to/application.yml target/dir/path');
         }
 
         $_db_type = isset($parameters['db']) ? $parameters['db'] : 'sqlite';
@@ -99,7 +99,7 @@ class pakeNewMidgardMvcAppTask
         putenv('MIDGARD_ENV_GLOBAL_SHAREDIR='.$dir.'/share');
         putenv('PHP_COMMAND='.$php.' -c '.$dir.' -d midgard.http=Off');
 
-        $installer = pake_which('mvc_install');
+        $installer = pake_which('midgardmvc');
         $force_tty = pakeApp::isTTY() ? ' --force-tty' : '';
 
         pake_sh(

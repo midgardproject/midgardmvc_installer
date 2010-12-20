@@ -35,13 +35,13 @@
 
   <contents>
     <dir name="/">
-      <file role="script" baseinstalldir="/" name="bin/mvc_install.sh">
+      <file role="script" baseinstalldir="/" name="bin/midgardmvc.sh">
         <tasks:replace type="pear-config" from="@PHP-BIN@" to="php_bin"/>
         <tasks:replace type="pear-config" from="@BIN-DIR@" to="bin_dir"/>
         <tasks:replace type="pear-config" from="@PEAR-DIR@" to="php_dir"/>
       </file>
 
-      <file role="php" baseinstalldir="/" install-as="mvc_install.php" name="bin/mvc_install.php" />
+      <file role="php" baseinstalldir="/" install-as="midgardmvc.php" name="bin/midgardmvc.php" />
       <file role="php" baseinstalldir="midgardmvc_installer" install-as="midgardMvcInstallerApp.class.php" name="lib/midgardmvc_installer/midgardMvcInstallerApp.class.php">
         <tasks:replace type="package-info" from="1.0.DEV" to="version" />
       </file>
@@ -76,7 +76,7 @@
 
   <phprelease>
     <filelist>
-      <install as="mvc_install" name="bin/mvc_install.sh" />
+      <install as="midgardmvc" name="bin/midgardmvc.sh" />
     </filelist>
   </phprelease>
 

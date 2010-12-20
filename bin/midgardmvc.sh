@@ -22,4 +22,4 @@ if (test -z "$PHP_CLASSPATH") ; then
   export PHP_CLASSPATH
 fi
 
-$PHP_COMMAND -d html_errors=off -qC $PAKE_HOME/mvc_install.php "$@"
+$PHP_COMMAND -d html_errors=off -qC $PAKE_HOME/midgardmvc.php "$@"
