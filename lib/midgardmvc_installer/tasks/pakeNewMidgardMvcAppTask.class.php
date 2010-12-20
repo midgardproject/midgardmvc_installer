@@ -36,6 +36,9 @@ class pakeNewMidgardMvcAppTask
 
         pake_echo_comment('reading application definition');
         $application = pakeYaml::loadFile($args[0]);
+        if (!is_array($application)) {
+            throw new pakeException("This doesn't look like valid application definition: ".$args[0]);
+        }
 
         self::create_env_fs($args[1]);
         $dir = realpath($args[1]);
