@@ -6,8 +6,9 @@ class pakeNewMidgardMvcAppTask
 {
     public static function import_default_tasks()
     {
-        pake_desc('Set up Midgard MVC with Midgard2. Usage: midgardmvc init_mvc path/to/application.yml target/dir/path');
-        pake_task(__CLASS__.'::init_mvc');
+        pake_desc('Set up Midgard MVC with Midgard2. Usage: midgardmvc install path/to/application.yml target/dir/path');
+        pake_task(__CLASS__.'::install');
+        pake_alias('init_mvc', __CLASS__.'::install'); // backward compatibility
 
         pake_desc('Create fresh database for existing application. Usage: midgardmvc reinit_db app/dir/path');
         pake_task(__CLASS__.'::reinit_db');
@@ -19,7 +20,7 @@ class pakeNewMidgardMvcAppTask
 
 
     // public tasks
-    public static function run_init_mvc($task, $args, $parameters)
+    public static function run_install($task, $args, $parameters)
     {
         if (count($args) != 2) {
             throw new pakeException('usage: midgardmvc '.$task->get_name().' path/to/application.yml target/dir/path');
