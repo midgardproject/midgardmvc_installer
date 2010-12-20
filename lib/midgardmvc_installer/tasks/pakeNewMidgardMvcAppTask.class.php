@@ -193,6 +193,9 @@ class pakeNewMidgardMvcAppTask
         // CONFIGURATION SETTINGS
         $php_config .= "include_path=" . ini_get('include_path') . "\n";
         $php_config .= "date.timezone=" . ini_get('date.timezone') . "\n";
+        $php_config .= "magic_quotes_gpc = Off\n";
+        $php_config .= "magic_quotes_runtime = Off\n";
+        $php_config .= "magic_quotes_sybase = Off\n";
 
         $php_config .= "midgard.engine = On\n";
         $php_config .= "midgard.http = On\n";
