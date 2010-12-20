@@ -12,7 +12,9 @@ class pakeNewMidgardMvcAppTask
         pake_desc('Create fresh database for existing application. Usage: midgardmvc reinit_db app/dir/path');
         pake_task(__CLASS__.'::reinit_db');
 
-        pake_task(__CLASS__.'::_init_database'); // helper
+        // helper tasks (hidden)
+        pake_task(__CLASS__.'::_init_database');
+        pake_task(__CLASS__.'::_init_mvc_nodes');
     }
 
 
@@ -86,9 +88,38 @@ class pakeNewMidgardMvcAppTask
     // hidden tasks
     public static function run__init_database($task, $args)
     {
+        pake_echo_comment('Initialising database…');
+
         pakeMidgard::connect($args[0].'/midgard2.conf');
         pakeMidgard::create_blobdir();
         pakeMidgard::init_database();
+    }
+
+    public static function run__init_mvc_nodes($task, $args)
+    {
+        pake_echo_comment('Preparing Midgard MVC nodes…');
+
+        $path = $args[0];
+
+        // load config
+        $config = pakeYaml::loadFile($path.'/application.yml');
+
+        // no nodes to insert
+        if (!isset($config['nodes']) or empty($config['nodes']))
+            return true;
+
+        // connect
+        pakeMidgard::connect($path.'/midgard2.conf');
+
+        // init MVC
+        require_once $path.'/midgardmvc_core/framework.php';
+        $midgardmvc = midgardmvc_core::get_instance($config);
+
+        // insert nodes
+        call_user_func(
+            array('midgardmvc_core_providers_hierarchy_'.$config['providers_hierarchy'], 'prepare_nodes'),
+            $config['nodes'], false
+        );
     }
 
 
@@ -102,11 +133,13 @@ class pakeNewMidgardMvcAppTask
         $installer = pake_which('midgardmvc');
         $force_tty = pakeApp::isTTY() ? ' --force-tty' : '';
 
-        pake_sh(
-            escapeshellarg($installer).$force_tty.
-            ' _init_database '.escapeshellarg($dir),
-            true
-        );
+        $cmd = escapeshellarg($installer).$force_tty;
+
+        // init database
+        pake_sh($cmd.' _init_database '.escapeshellarg($dir), true);
+
+        // insert nodes
+        pake_sh($cmd.' _init_mvc_nodes '.escapeshellarg($dir), true);
     }
 
 
