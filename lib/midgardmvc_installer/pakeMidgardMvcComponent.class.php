@@ -188,7 +188,7 @@ class pakeMidgardMvcComponent
                 case 'git':
                 case 'github':
                     $git = new pakeGit($component_dir);
-                    $git->pull();
+                    $git->pull('origin', $source['branch']);
                 break;
 
                 case 'subversion':
