@@ -16,6 +16,9 @@ class pakeNewMidgardMvcAppTask
         pake_desc('Update database for existing application. Usage: midgardmvc update_db [app/dir/path]');
         pake_task(__CLASS__.'::update_db');
 
+        pake_desc('Update components of existing application. Usage: midgardmvc components_update [app/dir/path]');
+        pake_task(__CLASS__.'::components_update');
+
         // helper tasks (hidden)
         pake_task(__CLASS__.'::_init_database');
         pake_task(__CLASS__.'::_update_database');
@@ -54,10 +57,11 @@ class pakeNewMidgardMvcAppTask
         self::create_config($dir, $_db_type);
         self::create_ini_file($dir);
         self::create_runner_script($dir);
-        pakeYaml::emitFile($application, "{$dir}/application.yml");
 
         pake_echo_comment('fetching MidgardMVC components');
         pakeMidgardMvcComponent::install_mvc_components($application['components'], $dir);
+
+        pakeYaml::emitFile($application, "{$dir}/application.yml");
 
         self::_run_tasks_in_app_context($dir, array('_init_database', '_init_mvc_nodes'));
 
@@ -83,6 +87,17 @@ class pakeNewMidgardMvcAppTask
     public static function run_update_db($task, $args)
     {
         $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
+
+        self::_run_tasks_in_app_context($dir, array('_update_database'));
+    }
+
+    public static function run_components_update($task, $args)
+    {
+        $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
+
+        $config = pakeYaml::loadFile($dir.'/application.yml');
+
+        pakeMidgardMvcComponent::update_mvc_components($config['components'], $dir);
 
         self::_run_tasks_in_app_context($dir, array('_update_database'));
     }
