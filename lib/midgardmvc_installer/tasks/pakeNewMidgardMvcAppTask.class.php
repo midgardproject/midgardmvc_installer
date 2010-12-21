@@ -13,8 +13,12 @@ class pakeNewMidgardMvcAppTask
         pake_desc('Create fresh database for existing application. Usage: midgardmvc reinit_db [app/dir/path]');
         pake_task(__CLASS__.'::reinit_db');
 
+        pake_desc('Update database for existing application. Usage: midgardmvc update_db [app/dir/path]');
+        pake_task(__CLASS__.'::update_db');
+
         // helper tasks (hidden)
         pake_task(__CLASS__.'::_init_database');
+        pake_task(__CLASS__.'::_update_database');
         pake_task(__CLASS__.'::_init_mvc_nodes');
     }
 
@@ -55,7 +59,7 @@ class pakeNewMidgardMvcAppTask
         pake_echo_comment('fetching MidgardMVC components');
         pakeMidgardMvcComponent::install_mvc_components($application['components'], $dir);
 
-        self::init_mvc_stage2($dir);
+        self::_run_tasks_in_app_context($dir, array('_init_database', '_init_mvc_nodes'));
 
         pake_echo_comment("Midgard MVC installed. Run your application with ".
                             "'{$dir}/run' and go to http://localhost:8001/");
@@ -63,22 +67,7 @@ class pakeNewMidgardMvcAppTask
 
     public static function run_reinit_db($task, $args)
     {
-        if (count($args) == 0) {
-            $dir = getcwd();
-        } elseif (count($args) == 1) {
-            $dir = $args[0];
-        } else {
-            throw new pakeException('usage: midgardmvc '.$task->get_name().' [app/dir/path]');
-        }
-
-        if (!is_dir($dir))
-            throw new pakeException('"'.$dir.'" is not a directory');
-
-        $dir = realpath($dir);
-
-        if (!file_exists($dir.'/application.yml'))
-            throw new pakeException('"'.$dir.'" does not look like MidgardMVC application. (can not find application.yml file)');
-
+        $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
         $ini = parse_ini_file($dir.'/midgard2.conf', true);
 
         if ($ini['MidgardDatabase']['Type'] == 'SQLite') {
@@ -88,7 +77,14 @@ class pakeNewMidgardMvcAppTask
             self::clean_mysql_db($ini['MidgardDatabase']);
         }
 
-        self::init_mvc_stage2($dir);
+        self::_run_tasks_in_app_context($dir, array('_init_database', '_init_mvc_nodes'));
+    }
+
+    public static function run_update_db($task, $args)
+    {
+        $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
+
+        self::_run_tasks_in_app_context($dir, array('_update_database'));
     }
 
 
@@ -129,9 +125,38 @@ class pakeNewMidgardMvcAppTask
         );
     }
 
+    public static function run__update_database($task, $args)
+    {
+        pake_echo_comment('Initialising database…');
+
+        pakeMidgard::connect($args[0].'/midgard2.conf');
+        pakeMidgard::update_database();
+    }
+
 
     // HELPERS
-    private static function init_mvc_stage2($dir)
+    private static function _get_app_dir_from_parameter_or_cwd($task_name, $args)
+    {
+        if (count($args) == 0) {
+            $dir = getcwd();
+        } elseif (count($args) == 1) {
+            $dir = $args[0];
+        } else {
+            throw new pakeException('usage: midgardmvc '.$task_name.' [app/dir/path]');
+        }
+
+        if (!is_dir($dir))
+            throw new pakeException('"'.$dir.'" is not a directory');
+
+        $dir = realpath($dir);
+
+        if (!file_exists($dir.'/application.yml'))
+            throw new pakeException('"'.$dir.'" does not look like MidgardMVC application. (can not find application.yml file)');
+
+        return $dir;
+    }
+
+    private static function _run_tasks_in_app_context($dir, array $tasks)
     {
         $php = pake_which('php');
         putenv('MIDGARD_ENV_GLOBAL_SHAREDIR='.$dir.'/share');
@@ -142,11 +167,9 @@ class pakeNewMidgardMvcAppTask
 
         $cmd = escapeshellarg($installer).$force_tty;
 
-        // init database
-        pake_sh($cmd.' _init_database '.escapeshellarg($dir), true);
-
-        // insert nodes
-        pake_sh($cmd.' _init_mvc_nodes '.escapeshellarg($dir), true);
+        foreach ($tasks as $task) {
+            pake_sh($cmd.' '.escapeshellarg($task).' '.escapeshellarg($dir), true);
+        }
     }
 
 
