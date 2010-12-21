@@ -47,7 +47,7 @@ class pakeNewMidgardMvcAppTask
         $dir = realpath($args[1]);
 
         pake_echo_comment('installing configuration files');
-        self::create_config($dir, $_db_type);
+        self::create_midgard_config($dir, $_db_type);
         self::create_ini_file($dir);
         self::create_runner_script($dir);
 
@@ -286,7 +286,7 @@ class pakeNewMidgardMvcAppTask
         return $path;
     }
 
-    private static function create_config($prefix, $db_type)
+    private static function create_midgard_config($prefix, $db_type)
     {
         if ($db_type == 'sqlite') {
             $db_config = "Type=SQLite\n".
