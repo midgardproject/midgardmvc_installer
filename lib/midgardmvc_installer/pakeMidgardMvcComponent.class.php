@@ -5,6 +5,7 @@ class pakeMidgardMvcComponent
     public static function install_mvc_components(array $components, $target_dir)
     {
         foreach ($components as $component => $sources) {
+            self::get_mvc_component($component, $sources, $target_dir);
             self::install_mvc_component($component, $sources, $target_dir);
         }
     }
@@ -13,8 +14,6 @@ class pakeMidgardMvcComponent
     private static function install_mvc_component($component, $sources, $target_dir)
     {
         $component_dir = $target_dir.'/'.$component;
-
-        self::get_mvc_component($component, $sources, $component_dir);
 
         // Checking validity
         $manifest = pakeYaml::loadFile($component_dir.'/manifest.yml');
@@ -51,8 +50,10 @@ class pakeMidgardMvcComponent
         }
     }
 
-    private static function get_mvc_component($component, $sources, $component_dir)
+    private static function get_mvc_component($component, $sources, $target_dir)
     {
+        $component_dir = $target_dir.'/'.$component;
+
         if (file_exists($component_dir)) {
             // already installed
             return true;
