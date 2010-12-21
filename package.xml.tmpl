@@ -22,15 +22,19 @@
   <date>##CURRENT_DATE##</date>
   <version>
     <release>##INSTALLER_VERSION##</release>
-    <api>1.0.1</api>
+    <api>1.0.2</api>
   </version>
   <stability>
-    <release>beta</release>
+    <release>stable</release>
     <api>stable</api>
   </stability>
   <license uri="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser General Public License, version 2.1</license>
   <notes>
-    -
+    - new task: update_db
+    - new task: components_update (calls update_db afterwards)
+    - reinit_db, update_db, components_update tasks try to use current dir, if one is not given as parameter
+    - "install" task creates "aip.yml" in application dir, instead of using bundled one
+    - better logic for "php.ini" generation
   </notes>
 
   <contents>
