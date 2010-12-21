@@ -35,14 +35,7 @@ class pakeNewMidgardMvcAppTask
 
         $_db_type = isset($parameters['db']) ? $parameters['db'] : 'sqlite';
 
-        pake_echo_comment('checking, if recent AiP is installed');
-        if (pakePearTask::isInstalled('AppServer', 'pear.indeyets.pp.ru')) {
-            pake_superuser_sh('pear clear-cache');
-            pake_superuser_sh('pear channel-update indeyets');
-            pake_superuser_sh('pear upgrade indeyets/AppServer');
-        } else {
-            pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
-        }
+        self::verify_prerequisites();
 
         pake_echo_comment('reading application definition');
         $application = pakeYaml::loadFile($args[0]);
@@ -204,6 +197,7 @@ class pakeNewMidgardMvcAppTask
         pake_mkdirs($dir.'/blobs');
         pake_mkdirs($dir.'/var');
         pake_mkdirs($dir.'/cache');
+        pake_mkdirs($dir.'/sessions');
 
         // looking for core xml-files
         $xmls = pakeFinder::type('file')->name('*.xml')->maxdepth(0);
@@ -218,34 +212,51 @@ class pakeNewMidgardMvcAppTask
         $php_config = '';
 
         // EXTENSIONS
-        // on debian/ubuntu, php extensions are inherited. on normal systems they are not
-        if (!file_exists('/etc/debian_version') or !extension_loaded('midgard2')) {
-            $php_config .= "extension=midgard2.so\n";
-            $php_config .= "extension=gettext.so\n";
+        $is_debian = file_exists('/etc/debian_version');
 
-            if (extension_loaded('yaml')) {
+        if ($is_debian) {
+            // on debian/ubuntu, php extensions are inherited. on normal systems they are not
+            if (!extension_loaded('midgard2'))
+                $php_config .= "extension=midgard2.so\n";
+
+            if (!extension_loaded('gettext'))
+                $php_config .= "extension=gettext.so\n";
+
+            if (!extension_loaded('yaml') and self::extension_installed('yaml')) {
                 $php_config .= "extension=yaml.so\n";
             }
 
-            if (extension_loaded('httpparser')) {
+            if (!extension_loaded('httpparser') and self::extension_installed('httpparser')) {
                 $php_config .= "extension=httpparser.so\n";
             }
+        } else {
+            $php_config .= "extension=midgard2.so\n";
+            $php_config .= "extension=gettext.so\n";
 
-            $php_config .= "\n";
+            if (self::extension_installed('yaml')) {
+                $php_config .= "extension=yaml.so\n";
+            }
+
+            if (self::extension_installed('httpparser')) {
+                $php_config .= "extension=httpparser.so\n";
+            }
         }
+        $php_config .= "\n";
 
         // CONFIGURATION SETTINGS
-        $php_config .= "include_path=" . ini_get('include_path') . "\n";
-        $php_config .= "date.timezone=" . ini_get('date.timezone') . "\n";
+        $php_config .= 'include_path="'.ini_get('include_path').'"'."\n";
+        $php_config .= 'date.timezone="'.ini_get('date.timezone').'"'."\n";
+        $php_config .= 'session.save_path="'.$dir.'/sessions"'."\n";
+        $php_config .= "\n";
         $php_config .= "magic_quotes_gpc = Off\n";
         $php_config .= "magic_quotes_runtime = Off\n";
         $php_config .= "magic_quotes_sybase = Off\n";
-
+        $php_config .= "\n";
         $php_config .= "midgard.engine = On\n";
         $php_config .= "midgard.http = On\n";
         $php_config .= "midgard.memory_debug = Off\n";
-        $php_config .= "midgard.configuration_file = {$dir}/midgard2.conf\n";
-        $php_config .= "midgardmvc.application_config = {$dir}/application.yml\n";
+        $php_config .= 'midgard.configuration_file = "'.$dir.'/midgard2.conf"'."\n";
+        $php_config .= 'midgardmvc.application_config = "'.$dir.'/application.yml"'."\n";
 
         // WRITING FILE
         pake_write_file($dir.'/php.ini', $php_config);
@@ -347,6 +358,39 @@ class pakeNewMidgardMvcAppTask
 
         pake_write_file($prefix.'/run', $contents);
         pake_chmod('run', $prefix, 0755);
+    }
+
+    private static function verify_prerequisites()
+    {
+        pake_echo_comment('checking, if recent AiP is installed…');
+        if (pakePearTask::isInstalled('AppServer', 'pear.indeyets.pp.ru')) {
+            pake_superuser_sh('pear clear-cache');
+            pake_superuser_sh('pear channel-update indeyets');
+            pake_superuser_sh('pear upgrade indeyets/AppServer');
+        } else {
+            pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
+        }
+
+        pake_echo_comment('checking, if required extensions are installed…');
+        if (!self::extension_installed('midgard2') or !self::extension_installed('gettext'))
+            throw new pakeException('MVC applications require "midgard2" and "gettext" extensions to be installed');
+    }
+
+    private static function extension_installed($name)
+    {
+        if (extension_loaded($name))
+            return true;
+
+        $dir = ini_get('extension_dir');
+
+        if (empty($dir))
+            return false;
+
+        $is_windows = (DIRECTORY_SEPARATOR == '\\');
+
+        $extension_path = realpath($dir).'/'.$name.($is_windows ? '.dll' : '.so');
+
+        return file_exists($extension_path);
     }
 
 
