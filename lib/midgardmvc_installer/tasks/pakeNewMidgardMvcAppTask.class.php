@@ -49,6 +49,7 @@ class pakeNewMidgardMvcAppTask
         pake_echo_comment('installing configuration files');
         self::create_midgard_config($dir, $_db_type);
         self::create_ini_file($dir);
+        self::create_aip_config($dir);
         self::create_runner_script($dir);
 
         pake_echo_comment('fetching MidgardMVC components');
@@ -327,12 +328,33 @@ class pakeNewMidgardMvcAppTask
         pake_write_file($prefix.'/midgard2.conf', $config_file);
     }
 
+    private static function create_aip_config($prefix)
+    {
+        $config = array(
+            'servers' => array(
+                array(
+                    'protocol' => 'HTTP',
+                    'socket' => 'tcp://127.0.0.1:8001',
+                    'min-children' => 2,
+                    'max-children' => 2,
+                    'app' => array(
+                        'class' => 'midgardmvc_appserv_runner_app',
+                        'file' => 'midgardmvc_core/httpd/appserv_runner_app.php',
+                        'middlewares' => array(),
+                    ),
+                ),
+            ),
+        );
+
+        pakeYaml::emitFile($config, $prefix.'/aip.yml');
+    }
+
     private static function create_runner_script($prefix)
     {
         $php = escapeshellarg(pake_which('php'));
         $php_ini = escapeshellarg($prefix.'/php.ini');
         $aip = escapeshellarg(pake_which('aip'));
-        $app_path = escapeshellarg($prefix.'/midgardmvc_core/httpd');
+        $app_path = escapeshellarg($prefix.'/aip.yml');
 
         $debug_runner = escapeshellarg($prefix.'/midgardmvc_core/httpd/midgardmvc-root-appserv.php');
 
