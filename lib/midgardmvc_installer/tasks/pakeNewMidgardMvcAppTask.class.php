@@ -10,7 +10,7 @@ class pakeNewMidgardMvcAppTask
         pake_task(__CLASS__.'::install');
         pake_alias('init_mvc', __CLASS__.'::install'); // backward compatibility
 
-        pake_desc('Create fresh database for existing application. Usage: midgardmvc reinit_db app/dir/path');
+        pake_desc('Create fresh database for existing application. Usage: midgardmvc reinit_db [app/dir/path]');
         pake_task(__CLASS__.'::reinit_db');
 
         // helper tasks (hidden)
@@ -63,7 +63,13 @@ class pakeNewMidgardMvcAppTask
 
     public static function run_reinit_db($task, $args)
     {
-        $dir = $args[0];
+        if (count($args) == 0) {
+            $dir = getcwd();
+        } elseif (count($args) == 1) {
+            $dir = $args[0];
+        } else {
+            throw new pakeException('usage: midgardmvc '.$task->get_name().' [app/dir/path]');
+        }
 
         if (!is_dir($dir))
             throw new pakeException('"'.$dir.'" is not a directory');
