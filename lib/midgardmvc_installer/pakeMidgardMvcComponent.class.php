@@ -8,6 +8,11 @@ class pakeMidgardMvcComponent
         foreach ($components as $component => $sources) {
             $number = self::get_mvc_component($component, $sources, $target_dir);
 
+            if ($number == -1) {
+                // -1 means "already installed"
+                continue;
+            }
+
             // leaving only successful source in application.yml
             $components[$component] = array($sources[$number]);
 
@@ -77,7 +82,7 @@ class pakeMidgardMvcComponent
 
         if (file_exists($component_dir)) {
             // already installed
-            return true;
+            return -1;
         }
 
         if (!is_array($sources)) {
