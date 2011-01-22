@@ -362,9 +362,16 @@ class pakeNewMidgardMvcAppTask
         $debug =      $php.' -c '.$php_ini.' '.$debug_runner;
 
         try {
-            $gdb = escapeshellarg(pake_which('gdb'));
-            $debug = $gdb.' --args '.$debug;
+            // looking for LLDB
+            $lldb = escapeshellarg(pake_which('lldb'));
+            $debug = $lldb.' -- '.$debug;
         } catch (pakeException $e) {
+            try {
+                // looking for GDB
+                $gdb = escapeshellarg(pake_which('gdb'));
+                $debug = $gdb.' --args '.$debug;
+            } catch (pakeException $e) {
+            }
         }
 
         $contents  = '#!/bin/sh'."\n\n";
