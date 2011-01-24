@@ -28,7 +28,6 @@ class pakeNewMidgardMvcAppTask
         pake_desc("Update installed application. Usage: midgardmvc update [app/dir/path]");
         pake_task(__CLASS__.'::update',
                     __CLASS__.'::components_update', // dependencies
-                    __CLASS__.'::build_translations',
                     __CLASS__.'::init_mvc_nodes');
 
         // helper tasks (hidden)
