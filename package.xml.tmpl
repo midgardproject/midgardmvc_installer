@@ -22,15 +22,20 @@
   <date>##CURRENT_DATE##</date>
   <version>
     <release>##INSTALLER_VERSION##</release>
-    <api>1.0.2</api>
+    <api>1.0.3</api>
   </version>
   <stability>
-    <release>beta</release>
+    <release>stable</release>
     <api>stable</api>
   </stability>
   <license uri="http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt">GNU Lesser General Public License, version 2.1</license>
   <notes>
-    -
+    - new task: build_translations (for building gettext binary message catalogs (.mo files) from .po files)
+    - new task: init_mvc_nodes for (re)creating MVC-Application's nodes on request
+    - new task: update (for complete update of installed application)
+    - prefer LLDB to GDB in debug-mode
+    - (bug #15) properly handle "component already installed" situation
+    - (bug #17) do not choke on midgard.conf without mysql host/port
   </notes>
 
   <contents>
