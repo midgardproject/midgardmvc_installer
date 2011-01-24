@@ -38,6 +38,11 @@ class pakeMidgardMvcComponent
     public static function update_mvc_components(array $components, $target_dir)
     {
         foreach ($components as $component => $sources) {
+            // support for single-source components
+            if (!isset($sources[0])) {
+                $sources = array($sources);
+            }
+
             self::update_mvc_component($component, $sources[0], $target_dir);
 
             // Checking validity
