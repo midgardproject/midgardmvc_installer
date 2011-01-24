@@ -72,6 +72,12 @@ class pakeNewMidgardMvcAppTask
             $_db_path = $ini['MidgardDatabase']['DatabaseDir'].'/'.$ini['MidgardDatabase']['Name'].'.db';
             self::clean_sqlite_db($_db_path);
         } elseif ($ini['MidgardDatabase']['Type'] == 'MySQL') {
+            // set "defaults", in case optional parameters are missing from file
+            if (!isset($ini['MidgardDatabase']['Host']))
+                $ini['MidgardDatabase']['Host'] = 'localhost';
+            if (!isset($ini['MidgardDatabase']['Port']))
+                $ini['MidgardDatabase']['Port'] = '3306';
+
             self::clean_mysql_db($ini['MidgardDatabase']);
         }
 
