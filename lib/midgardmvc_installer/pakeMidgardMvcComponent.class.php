@@ -35,9 +35,14 @@ class pakeMidgardMvcComponent
         }
     }
 
-    public static function update_mvc_components(array $components, $target_dir)
+    public static function update_mvc_components(array $components, $target_dir, $already_updated = array())
     {
         foreach ($components as $component => $sources) {
+            if (in_array($component, $already_updated))
+                continue;
+
+            $already_updated[] = $component;
+
             // support for single-source components
             if (!isset($sources[0])) {
                 $sources = array($sources);
@@ -56,11 +61,13 @@ class pakeMidgardMvcComponent
 
             // Install component dependencies too
             if (isset($manifest['requires'])) {
-                self::update_mvc_components($manifest['requires'], $target_dir);
+                $already_updated = self::update_mvc_components($manifest['requires'], $target_dir, $already_updated);
             }
 
             self::install_mvc_component($component, $target_dir);
         }
+
+        return $already_updated;
     }
 
 
