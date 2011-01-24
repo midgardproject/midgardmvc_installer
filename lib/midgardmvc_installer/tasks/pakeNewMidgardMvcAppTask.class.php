@@ -22,6 +22,9 @@ class pakeNewMidgardMvcAppTask
         pake_desc('Generate gettext binary message catalogs from string-files. Usage: midgardmvc build_translations [app/dir/path]');
         pake_task(__CLASS__.'::build_translations');
 
+        pake_desc("(re)Insert Application's MVC nodes. Usage: midgardmvc init_mvc_nodes [app/dir/path] [--destructive]");
+        pake_task(__CLASS__.'::init_mvc_nodes');
+
         // helper tasks (hidden)
         pake_task(__CLASS__.'::_init_database');
         pake_task(__CLASS__.'::_update_database');
@@ -117,6 +120,13 @@ class pakeNewMidgardMvcAppTask
         }
     }
 
+    public static function run_init_mvc_nodes($task, $args, $parameters)
+    {
+        $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
+
+        self::_run_tasks_in_app_context($dir, array('_init_mvc_nodes'), array_keys($parameters));
+    }
+
 
     // hidden tasks
     public static function run__init_database($task, $args)
@@ -128,30 +138,30 @@ class pakeNewMidgardMvcAppTask
         pakeMidgard::init_database();
     }
 
-    public static function run__init_mvc_nodes($task, $args)
+    public static function run__init_mvc_nodes($task, $args, $parameters)
     {
+        $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
+
         pake_echo_comment('Preparing Midgard MVC nodes…');
 
-        $path = $args[0];
-
         // load config
-        $config = pakeYaml::loadFile($path.'/application.yml');
+        $config = pakeYaml::loadFile($dir.'/application.yml');
 
         // no nodes to insert
         if (!isset($config['nodes']) or empty($config['nodes']))
             return true;
 
         // connect
-        pakeMidgard::connect($path.'/midgard2.conf');
+        pakeMidgard::connect($dir.'/midgard2.conf');
 
         // init MVC
-        require_once $path.'/midgardmvc_core/framework.php';
+        require_once $dir.'/midgardmvc_core/framework.php';
         $midgardmvc = midgardmvc_core::get_instance($config);
 
         // insert nodes
         call_user_func(
             array('midgardmvc_core_providers_hierarchy_'.$config['providers_hierarchy'], 'prepare_nodes'),
-            $config['nodes'], false
+            $config['nodes'], isset($parameters['destructive'])
         );
     }
 
