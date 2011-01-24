@@ -73,6 +73,41 @@ class pakeMidgardMvcComponent
         foreach ($xmls->in($component_dir.'/models/views') as $view_file) {
             pake_symlink($view_file, "{$target_dir}/share/views/{$component}_" . basename($view_file));
         }
+
+        self::generateTranslations($component_dir);
+    }
+
+    public static function generateTranslations($component_dir)
+    {
+        if (!is_dir($component_dir.'/locale')) {
+            return;
+        }
+
+        try {
+            try {
+                $msgfmt = getenv('GMSGFMT');
+
+                if (false === $msgfmt or !is_executable($msgfmt)) {
+                    $msgfmt = getenv('MSGFMT');
+                }
+
+                if (false === $msgfmt or !is_executable($msgfmt)) {
+                    $msgfmt = pake_which('gmsgfmt');
+                }
+            } catch (pakeException $e) {
+                $msgfmt = pake_which('msgfmt');
+            }
+
+            $finder = pakeFinder::type('file')->name('*.po');
+            foreach ($finder->in($component_dir.'/locale') as $_src) {
+                $_target = substr($_src, 0, -3).'.mo';
+                if (!file_exists($_target) or filemtime($_target) < filemtime($_src)) {
+                    pake_sh(escapeshellarg($msgfmt).' --statistics -f -c -v -o '.escapeshellarg($_target).' '.escapeshellarg($_src));
+                }
+            }
+        } catch (pakeException $e) {
+            pake_echo_error("Can't find msgfmt tool. Skipping generation of gettext-translations");
+        }
     }
 
 

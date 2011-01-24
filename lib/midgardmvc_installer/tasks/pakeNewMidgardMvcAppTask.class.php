@@ -19,6 +19,9 @@ class pakeNewMidgardMvcAppTask
         pake_desc('Update components of existing application. Usage: midgardmvc components_update [app/dir/path]');
         pake_task(__CLASS__.'::components_update');
 
+        pake_desc('Generate gettext binary message catalogs from string-files. Usage: midgardmvc build_translations [app/dir/path]');
+        pake_task(__CLASS__.'::build_translations');
+
         // helper tasks (hidden)
         pake_task(__CLASS__.'::_init_database');
         pake_task(__CLASS__.'::_update_database');
@@ -100,6 +103,18 @@ class pakeNewMidgardMvcAppTask
         pakeMidgardMvcComponent::update_mvc_components($config['components'], $dir);
 
         self::_run_tasks_in_app_context($dir, array('_update_database'));
+    }
+
+    public static function run_build_translations($task, $args)
+    {
+        $dir = self::_get_app_dir_from_parameter_or_cwd($task->get_name(), $args);
+
+        $config = pakeYaml::loadFile($dir.'/application.yml');
+
+        foreach ($config['components'] as $name => $data) {
+            pake_echo_comment('Building translations for '.$name.'…');
+            pakeMidgardMvcComponent::generateTranslations($dir.'/'.$name);
+        }
     }
 
 
