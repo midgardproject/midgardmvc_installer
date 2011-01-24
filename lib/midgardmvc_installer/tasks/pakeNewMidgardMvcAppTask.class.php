@@ -25,6 +25,12 @@ class pakeNewMidgardMvcAppTask
         pake_desc("(re)Insert Application's MVC nodes. Usage: midgardmvc init_mvc_nodes [app/dir/path] [--destructive]");
         pake_task(__CLASS__.'::init_mvc_nodes');
 
+        pake_desc("Update installed application. Usage: midgardmvc update [app/dir/path]");
+        pake_task(__CLASS__.'::update',
+                    __CLASS__.'::components_update', // dependencies
+                    __CLASS__.'::build_translations',
+                    __CLASS__.'::init_mvc_nodes');
+
         // helper tasks (hidden)
         pake_task(__CLASS__.'::_init_database');
         pake_task(__CLASS__.'::_update_database');
@@ -68,6 +74,8 @@ class pakeNewMidgardMvcAppTask
         pake_echo_comment("Midgard MVC installed. Run your application with ".
                             "'{$dir}/run' and go to http://localhost:8001/");
     }
+
+    public static function run_update() {} // virtual task
 
     public static function run_reinit_db($task, $args)
     {
