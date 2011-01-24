@@ -186,7 +186,7 @@ class pakeNewMidgardMvcAppTask
         return $dir;
     }
 
-    private static function _run_tasks_in_app_context($dir, array $tasks)
+    private static function _run_tasks_in_app_context($dir, array $tasks, array $params = array())
     {
         $php = pake_which('php');
         putenv('MIDGARD_ENV_GLOBAL_SHAREDIR='.$dir.'/share');
@@ -197,8 +197,14 @@ class pakeNewMidgardMvcAppTask
 
         $cmd = escapeshellarg($installer).$force_tty;
 
+        if (count($params > 0)) {
+            $_params = implode(' ', array_map(function($v){ return escapeshellarg('--'.$v); }, $params));
+        } else {
+            $_params = '';
+        }
+
         foreach ($tasks as $task) {
-            pake_sh($cmd.' '.escapeshellarg($task).' '.escapeshellarg($dir), true);
+            pake_sh($cmd.' '.escapeshellarg($task).' '.escapeshellarg($dir).' '.$_params, true);
         }
     }
 
