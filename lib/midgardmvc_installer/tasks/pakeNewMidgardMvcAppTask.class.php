@@ -298,7 +298,7 @@ class pakeNewMidgardMvcAppTask
         $php_config .= "magic_quotes_sybase = Off\n";
         $php_config .= "\n";
         $php_config .= "midgard.engine = On\n";
-        $php_config .= "midgard.http = On\n";
+        $php_config .= "midgard.http = Off\n";
         $php_config .= "midgard.memory_debug = Off\n";
         $php_config .= 'midgard.configuration_file = "'.$dir.'/midgard2.conf"'."\n";
         $php_config .= 'midgardmvc.application_config = "'.$dir.'/application.yml"'."\n";
