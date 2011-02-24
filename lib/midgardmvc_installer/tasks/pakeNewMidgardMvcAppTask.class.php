@@ -259,33 +259,21 @@ class pakeNewMidgardMvcAppTask
         // EXTENSIONS
         $is_debian = file_exists('/etc/debian_version');
 
-        if ($is_debian) {
-            // on debian/ubuntu, php extensions are inherited. on normal systems they are not
-            if (!extension_loaded('midgard2'))
-                $php_config .= "extension=midgard2.so\n";
-
-            if (!extension_loaded('gettext'))
-                $php_config .= "extension=gettext.so\n";
-
-            if (!extension_loaded('yaml') and self::extension_installed('yaml')) {
-                $php_config .= "extension=yaml.so\n";
-            }
-
-            if (!extension_loaded('httpparser') and self::extension_installed('httpparser')) {
-                $php_config .= "extension=httpparser.so\n";
-            }
-        } else {
-            $php_config .= "extension=midgard2.so\n";
+        if (false === $is_debian) {
+            // on debian/ubuntu, gettext is compiled into php
             $php_config .= "extension=gettext.so\n";
-
-            if (self::extension_installed('yaml')) {
-                $php_config .= "extension=yaml.so\n";
-            }
-
-            if (self::extension_installed('httpparser')) {
-                $php_config .= "extension=httpparser.so\n";
-            }
         }
+
+        $php_config .= "extension=midgard2.so\n";
+
+        if (self::extension_installed('yaml')) {
+            $php_config .= "extension=yaml.so\n";
+        }
+
+        if (self::extension_installed('httpparser')) {
+            $php_config .= "extension=httpparser.so\n";
+        }
+
         $php_config .= "\n";
 
         // CONFIGURATION SETTINGS
@@ -402,8 +390,8 @@ class pakeNewMidgardMvcAppTask
 
         $debug_runner = escapeshellarg($prefix.'/midgardmvc_core/httpd/midgardmvc-root-appserv.php');
 
-        $production = $php.' -c '.$php_ini.' '.$aip.' app '.$app_path;
-        $debug =      $php.' -c '.$php_ini.' '.$debug_runner;
+        $production = $php.' -n -c '.$php_ini.' '.$aip.' app '.$app_path;
+        $debug =      $php.' -n -c '.$php_ini.' '.$debug_runner;
 
         try {
             // looking for LLDB
