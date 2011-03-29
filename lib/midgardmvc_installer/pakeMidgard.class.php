@@ -69,6 +69,10 @@ class pakeMidgard
                 throw new pakeException("Couldn't create storage for {$type} class: ".midgard_connection::get_instance()->get_error_string());
             }
 
+            if (false === midgard_storage::update_class_storage($type)) {
+                throw new pakeException("Couldn't update storage for {$type} class: ".midgard_connection::get_instance()->get_error_string());
+            }
+
             pake_echo_action('midgard', 'created storage for class: '.pakeColor::colorize($type, 'INFO'));
         }
     }
