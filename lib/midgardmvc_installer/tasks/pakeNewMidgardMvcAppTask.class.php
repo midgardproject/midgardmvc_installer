@@ -424,12 +424,12 @@ class pakeNewMidgardMvcAppTask
     private static function verify_prerequisites()
     {
         pake_echo_comment('checking, if recent AiP is installed…');
-        if (pakePearTask::isInstalled('AppServer', 'pear.indeyets.pp.ru')) {
+        if (pakePearTask::isInstalled('AppServer', 'pear.indeyets.ru')) {
             pake_superuser_sh('pear clear-cache');
             pake_superuser_sh('pear channel-update indeyets');
             pake_superuser_sh('pear upgrade indeyets/AppServer');
         } else {
-            pakePearTask::install_pear_package('AppServer', 'pear.indeyets.pp.ru');
+            pakePearTask::install_pear_package('AppServer', 'pear.indeyets.ru');
         }
 
         pake_echo_comment('checking, if required extensions are installed…');

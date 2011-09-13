@@ -11,7 +11,7 @@ Installation:
 Stable releases
 ---------------
 
-    pear channel-discover pear.indeyets.pp.ru
+    pear channel-discover pear.indeyets.ru
     pear install indeyets/midgardmvc_installer
 
 
