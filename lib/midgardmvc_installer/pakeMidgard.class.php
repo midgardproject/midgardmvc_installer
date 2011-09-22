@@ -75,20 +75,13 @@ class pakeMidgard
         $re = new ReflectionExtension('midgard2');
         foreach ($re->getClasses() as $class_ref) {
             $class_mgd_ref = new midgard_reflection_class($class_ref->getName());
-            $parent_class = $class_mgd_ref->getParentClass();
-
-            if (!$parent_class) {
-                continue;
-            }
-
-            if (!in_array($parent_class->getName(), array("midgard_dbobject", "midgard_object", "midgard_view")))
-                continue;
-
-            // skip abstract classes
-            if (in_array($class_mgd_ref->getName(), array("midgard_dbobject", "midgard_object", "midgard_view")))
-                continue;
 
             $type = $class_mgd_ref->getName();
+            if (!is_subclass_of ($type, 'MidgardDBObject')
+                || $class_mgd_ref->isAbstract()
+                || $class_mgd_ref->isInterface()) {
+                    continue;
+            }
 
             if (midgard_storage::class_storage_exists($type)) {
                 if (false === midgard_storage::update_class_storage($type)) {
