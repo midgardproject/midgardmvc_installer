@@ -51,11 +51,12 @@ class pakeMidgard
         foreach ($re->getClasses() as $class_ref) {
             $class_mgd_ref = new midgard_reflection_class($class_ref->getName());
 
+            if ($class_mgd_ref->isAbstract() or $class_mgd_ref->isInterface())
+                continue;
+
             $type = $class_mgd_ref->getName();
-            if (!is_subclass_of ($type, 'MidgardDBObject')
-                || $class_mgd_ref->isAbstract()
-                || $class_mgd_ref->isInterface()) {
-                    continue;
+            if (!is_subclass_of($type, 'MidgardDBObject')) {
+                continue;
             }
 
             if (false === midgard_storage::create_class_storage($type)) {
@@ -76,11 +77,12 @@ class pakeMidgard
         foreach ($re->getClasses() as $class_ref) {
             $class_mgd_ref = new midgard_reflection_class($class_ref->getName());
 
+            if ($class_mgd_ref->isAbstract() or $class_mgd_ref->isInterface())
+                continue;
+
             $type = $class_mgd_ref->getName();
-            if (!is_subclass_of ($type, 'MidgardDBObject')
-                || $class_mgd_ref->isAbstract()
-                || $class_mgd_ref->isInterface()) {
-                    continue;
+            if (!is_subclass_of($type, 'MidgardDBObject')) {
+                continue;
             }
 
             if (midgard_storage::class_storage_exists($type)) {
